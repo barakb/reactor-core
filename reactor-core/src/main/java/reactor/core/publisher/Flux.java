@@ -2941,6 +2941,10 @@ public abstract class Flux<T> implements CorePublisher<T> {
 		return bufferTimeout(maxSize, maxTime, listSupplier());
 	}
 
+	public final Flux<List<T>> lazyBufferTimeout(int maxSize, Duration maxTime) {
+		return lazyBufferTimeout(maxSize, maxTime, listSupplier());
+	}
+
 	/**
 	 * Collect incoming values into multiple user-defined {@link Collection} buffers that
 	 * will be emitted by the returned {@link Flux} each time the buffer reaches a maximum
@@ -2959,6 +2963,10 @@ public abstract class Flux<T> implements CorePublisher<T> {
 	 */
 	public final <C extends Collection<? super T>> Flux<C> bufferTimeout(int maxSize, Duration maxTime, Supplier<C> bufferSupplier) {
 		return bufferTimeout(maxSize, maxTime, Schedulers.parallel(),
+				bufferSupplier);
+	}
+	public final <C extends Collection<? super T>> Flux<C> lazyBufferTimeout(int maxSize, Duration maxTime, Supplier<C> bufferSupplier) {
+		return lazyBufferTimeout(maxSize, maxTime, Schedulers.parallel(),
 				bufferSupplier);
 	}
 
@@ -2981,6 +2989,10 @@ public abstract class Flux<T> implements CorePublisher<T> {
 		return bufferTimeout(maxSize, maxTime, timer, listSupplier());
 	}
 
+	public final Flux<List<T>> lazyBufferTimeout(int maxSize, Duration maxTime, Scheduler timer) {
+		return lazyBufferTimeout(maxSize, maxTime, timer, listSupplier());
+	}
+
 	/**
 	 * Collect incoming values into multiple user-defined {@link Collection} buffers that
 	 * will be emitted by the returned {@link Flux} each time the buffer reaches a maximum
@@ -3001,6 +3013,11 @@ public abstract class Flux<T> implements CorePublisher<T> {
 	public final  <C extends Collection<? super T>> Flux<C> bufferTimeout(int maxSize, Duration maxTime,
 			Scheduler timer, Supplier<C> bufferSupplier) {
 		return onAssembly(new FluxBufferTimeout<>(this, maxSize, maxTime.toNanos(), TimeUnit.NANOSECONDS, timer, bufferSupplier));
+	}
+
+	public final  <C extends Collection<? super T>> Flux<C> lazyBufferTimeout(int maxSize, Duration maxTime,
+			Scheduler timer, Supplier<C> bufferSupplier) {
+		return onAssembly(new FluxBufferTimeoutLazy<>(this, maxSize, maxTime.toNanos(), TimeUnit.NANOSECONDS, timer, bufferSupplier));
 	}
 
 	/**
